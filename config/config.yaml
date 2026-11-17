@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------
+# Settings. Normally you only need to edit the first two lines.
+# ---------------------------------------------------------------
+
+# Where your FASTQ files are, and how each file is named.
+# {barcode} is replaced by barcode01, barcode02, ... from samples.csv
+reads_folder: "/path/to/your/fastq_pass/" #put where it is in the server
+reads_filename: "{barcode}/*.fastq.gz"
+
+# Read filtering before assembly
+min_read_length: 1000
+min_mean_read_quality: 0     # 0 = no quality filter
+
+# CPU threads used by each program
+threads: 16
+
+# NANOPlasty v0.4: configure ONT R10 plasmid assembly.
+# "mito" is an algorithm preset (the documented types do not include "plasmid").
+# It is not an assertion about the identity of the sequence.
+nanoplasty_script: "tools/NANOPlasty/NANOPlasty0.4.pl"
+nanoplasty_min_read_length: 2000
+nanoplasty_genome_range_fraction: 0.05  # e.g., 6164 bp => 5856–6472 bp
+nanoplasty_use_full_dataset: true        # can be changed to false for subsampling
+nanoplasty_extend_seed_directly: false  # design-derived seed != same-sample sequence
+nanoplasty_save_assembled_reads: false
+
+# Extra assembly with Flye. It does NOT use the design or a seed, so it is an
+# independent cross-check of NANOPlasty. Enabled by default.
+run_flye: true
+flye_max_coverage: 100       # Flye subsamples very deep data to this; 0 = no subsampling
+
+# Sniffles2: structural-variant candidates (>= min length) from the raw reads.
+run_sniffles: true
+sniffles_min_sv_length: 50
+sniffles_min_support: auto   # "auto" scales to read depth; or a number such as 10
+
+# Check that your inserts are in each assembly. Use one or both:
+#  1) a FASTA with the insert sequences (see config/insert_sequences.fasta.example)
+#  2) coordinates in config/insert_coordinates.csv
+insert_sequences_fasta: ""

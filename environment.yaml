@@ -1,0 +1,24 @@
+name: plasmid_pipeline
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - python>=3.11,<3.14
+  - snakemake>=8,<10
+  # NANOPlasty is downloaded separately from its official repository.
+  - perl
+  - perl-mce
+  - perl-parallel-forkmanager
+  - kalign
+  - flye>=2.9          # only used if run_flye: true
+  - minimap2
+  - samtools
+  - bcftools
+  - blast
+  - sniffles>=2
+  - biopython>=1.83
+  - matplotlib>=3.8
+  - numpy
+  - pysam
+  - pyyaml

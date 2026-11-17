@@ -1,0 +1,33 @@
+# Pipeline-generated outputs and working data
+results/
+work/
+.snakemake/
+
+# Large sequencing and alignment data (except reference/design FASTAs)
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.bam
+*.bai
+*.cram
+*.crai
+*.pod5
+*.pod5.gz
+*.sam
+*.vcf.gz
+*.tbi
+
+# External assembler installation and environments
+tools/NANOPlasty/
+.conda/
+env/
+venv/
+
+# Python, OS, and temporary files
+__pycache__/
+*.py[cod]
+*.log
+*.tmp
+*.bak
+.DS_Store

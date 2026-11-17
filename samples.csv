@@ -1,0 +1,10 @@
+barcode,sample,construct,expected_length_bp,design_fasta,seed_fasta
+barcode01,tal_merrf_left_bc01,tal_merrf_left,6655,designs/TAL MERRF 024128 left clone 9-YES.fa,seeds/tal_merrf_common_seed_800bp_clean.fasta
+barcode02,tal_merrf_left_bc02,tal_merrf_left,6655,designs/TAL MERRF 024128 left clone 9-YES.fa,seeds/tal_merrf_common_seed_800bp_clean.fasta
+barcode03,tal_merrf_left_bc03,tal_merrf_left,6655,designs/TAL MERRF 024128 left clone 9-YES.fa,seeds/tal_merrf_common_seed_800bp_clean.fasta
+barcode04,tal_merrf_right_bc04,tal_merrf_right,6164,designs/TAL MERRF 024130 right clone 12-YES.fa,seeds/tal_merrf_common_seed_800bp_clean.fasta
+barcode05,tal_merrf_right_bc05,tal_merrf_right,6164,designs/TAL MERRF 024130 right clone 12-YES.fa,seeds/tal_merrf_common_seed_800bp_clean.fasta
+barcode06,tal_merrf_right_bc06,tal_merrf_right,6164,designs/TAL MERRF 024130 right clone 12-YES.fa,seeds/tal_merrf_common_seed_800bp_clean.fasta
+barcode07,final2_tod_bc07,final2_tod,8280,designs/Final2 TOD sCUT nonOrientingDomain Half R Gibson.fa,seeds/final2_tod_seed_800bp_clean.fasta
+barcode08,final2_tod_bc08,final2_tod,8280,designs/Final2 TOD sCUT nonOrientingDomain Half R Gibson.fa,seeds/final2_tod_seed_800bp_clean.fasta
+barcode09,final2_tod_bc09,final2_tod,8280,designs/Final2 TOD sCUT nonOrientingDomain Half R Gibson.fa,seeds/final2_tod_seed_800bp_clean.fasta
