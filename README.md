@@ -178,3 +178,21 @@ The integrated `results/summary/all_samples.tsv` now contains
 
 Run `python3 -m unittest discover -s tests -v` to check the software.
 Synthetic tests do not replace real-data validation across the nine barcodes.
+
+### Multi-contig Flye graph reconstruction
+
+If Flye emits several contigs, the normalization rule now evaluates circular
+paths through the original oriented Flye GFA links. Candidate sequences contain
+**only bases from the Flye contigs**; exact observed terminal overlaps of at
+least 20 bp are trimmed, but no bases are added from the design or NANOPlasty.
+The assembled path must be circularly equivalent to NANOPlasty (allowing
+rotation and reverse-complement orientation), or the rule stops for review.
+
+For barcode 06, the three reported contigs (673, 3384 and 2158 bp) have a
+52-bp exact overlap at one junction. A graph-supported path would contain
+6163 bp. This is a **graph reconstruction selected using NANOPlasty**, not
+an independently finished Flye assembly; the status in `flye/normalization.tsv`
+is `graph_reconstructed_nanoplasty_concordant_read_review_required`.
+Sequence agreement cannot replace checks of raw Nanopore reads spanning the
+two joins without contig overlap, nor can it confirm the TALEN repeat-copy
+number. The original `flye/assembly_raw/assembly.fasta` and GFA remain intact.
