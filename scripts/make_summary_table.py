@@ -50,6 +50,15 @@ def summarize_sample(sample_row, results, use_sniffles, use_flye):
     insert_rows = [r for r in read_table(folder / 'blast' / 'inserts_summary.tsv')
                    if r.get('insert_id') != 'NOT_ANNOTATED']
     inserts_found = sum(1 for r in insert_rows if r['status'] == 'FULL_LENGTH_EXACT_SEQUENCE')
+    repeat_rows = [r for r in read_table(folder / 'repeat_integrity' / 'summary.tsv')
+                   if r.get('candidate') != 'NONE']
+    repeat_matches = sum(r['status'] == 'SEQUENCE_MATCH' for r in repeat_rows)
+    repeat_review = not repeat_rows or repeat_matches != len(repeat_rows)
+    spanning = [int(r['reference_spanning_reads']) for r in repeat_rows
+                if r.get('reference_spanning_reads', '').isdigit()]
+    support_assessed = bool(repeat_rows) and len(spanning) == len(repeat_rows)
+    min_spanning = min(spanning) if support_assessed else 'NOT_ASSESSED'
+    limited_repeat_support = not support_assessed or min_spanning < 3
 
     row = dict(
         sample=sample, barcode=sample_row['barcode'], construct=sample_row['construct'],
@@ -70,7 +79,17 @@ def summarize_sample(sample_row, results, use_sniffles, use_flye):
         blast_best_hit_query_coverage_percent=blast['best_hsp_query_coverage_percent'],
         blast_all_hits_query_coverage_percent=blast['query_union_coverage_percent'],
         inserts_checked=len(insert_rows) if insert_rows else 'NOT_PROVIDED',
-        inserts_found_full_length=inserts_found if insert_rows else 'NOT_CHECKED')
+        inserts_found_full_length=inserts_found if insert_rows else 'NOT_CHECKED',
+        insert_validation_status=('ANNOTATIONS_MISSING' if not insert_rows else
+                                  'ALL_EXACT' if inserts_found == len(insert_rows)
+                                  else 'REVIEW_REQUIRED'),
+        repeat_candidate_regions=len(repeat_rows),
+        repeat_candidate_regions_matching=repeat_matches,
+        repeat_min_spanning_alignments=min_spanning,
+        repeat_integrity_status=('NO_CANDIDATES' if not repeat_rows else
+                                 'REVIEW_REQUIRED' if repeat_review else
+                                 'DESIGN_MATCH_LIMITED_READ_SUPPORT' if limited_repeat_support
+                                 else 'DESIGN_MATCH_WITH_SPANNING_ALIGNMENTS'))
 
     if use_sniffles:
         sniffles = first_row(folder / 'sniffles' / 'summary.tsv')
@@ -91,7 +110,8 @@ def summarize_sample(sample_row, results, use_sniffles, use_flye):
                    flye_agrees_with_nanoplasty='YES' if flye_agrees else 'NO')
 
     problem = (orientation['needs_review'] == 'YES' or versus_design['identical'] != 'YES'
-               or not flye_agrees or inserts_found < len(insert_rows))
+               or not flye_agrees or not insert_rows or inserts_found < len(insert_rows)
+               or repeat_review or limited_repeat_support)
     row['needs_review'] = 'YES' if problem else 'NO'
     return row
 
