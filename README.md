@@ -130,3 +130,49 @@ The existing `scripts/normalize_flye_tandem.py` is retained. It identifies a ref
 `tests/test_scripts.py` checks read filtering, config generation, alignment-independent comparison logic, VCF, insert/BLAST parsing, plotting and summary tables using synthetic data. `python3 -m unittest discover -s tests -v` additionally checks NANOPlasty output selection with a stand-in Perl assembler and Flye tandem normalization on synthetic one-, two- and three-copy contigs. **No real NANOPlasty assembly or full server Snakemake run was executed here**. The package does not contain raw patient/experiment reads or the upstream NANOPlasty source.
 
 Source: https://github.com/ndierckx/NANOPlasty (v0.4 README, configuration instructions).
+
+
+## Main validation question: insertion and repeat retention
+
+**Did each sequenced plasmid retain the intended insert and the correct TALEN repeat architecture after cloning?**
+
+The three complete designed FASTA sequences are sufficient for an *end-to-end
+observed-versus-designed construct comparison*: if the entire experimental
+assembly matches its complete design, the sequence is consistent with retention
+of all designed regions, including the intended insert and repetitive arrays.
+An exact design match is **not** proof that the insert arose via the intended
+cloning event. With no pre-insertion backbone, insert FASTA, or known insert
+coordinates, the program cannot uniquely identify *which portion was inserted*
+or independently verify insertion-specific junctions. The insert-specific table
+is therefore marked `ANNOTATIONS_MISSING` until this information is provided,
+rather than reporting a false confirmation.
+
+### Repeat integrity screen (automatic; no annotation required)
+
+Every sample now produces `results/<sample>/repeat_integrity/summary.tsv`.
+The screen finds candidate repetitive design intervals using recurrent 30-mers
+(at least three occurrences), anchors each candidate to unique exact flanks in
+the design-oriented assembly, and compares the extracted assembly sequence
+with the designed region. It reports region length, substitutions, gapped
+bases, representative 30-mer counts, and primary reads aligned across both
+flanks (mapping quality at least 20). A minimum of three spanning alignments
+is used as a *review threshold*; this threshold is not clinical or biochemical
+proof of sequence correctness.
+
+These intervals are computational repeat candidates, **not verified TALEN
+feature annotations**. Similar TALE modules are often around 102 bp; this
+screen does not assign every 102-bp module, independently confirm the RVD
+motif order, or eliminate mapping ambiguity. A `SEQUENCE_MATCH` result
+indicates that the selected assembly retained the corresponding design
+subsequence at these anchors. A mismatch, unresolved flank, no discovered
+candidate, or insufficient spanning evidence is flagged for manual review.
+Use raw read alignments and independent Flye and NANOPlasty assemblies before
+claiming repeat architecture is correct.
+
+The integrated `results/summary/all_samples.tsv` now contains
+`insert_validation_status`, `repeat_candidate_regions`,
+`repeat_candidate_regions_matching`, `repeat_min_spanning_alignments`,
+`repeat_integrity_status`, and `needs_review`.
+
+Run `python3 -m unittest discover -s tests -v` to check the software.
+Synthetic tests do not replace real-data validation across the nine barcodes.
