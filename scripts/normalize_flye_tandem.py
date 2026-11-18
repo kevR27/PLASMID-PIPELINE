@@ -100,6 +100,14 @@ def pairwise_counts(a, b, aligner):
 
 
 def run(args):
+    with open(args.assembly) as handle:
+        sequence_count = sum(1 for _ in SeqIO.parse(handle, 'fasta'))
+    if sequence_count > 1:
+        if not args.graph or not args.nanoplasty:
+            raise ValueError('Multi-contig Flye requires --graph and --nanoplasty')
+        from reconstruct_flye_graph import process
+        process(args, write_fasta, write_tsv)
+        return
     raw_id, raw = read_one(args.assembly)
     _, reference = read_one(args.design)
     length = len(reference)
@@ -199,6 +207,8 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--assembly', required=True, help='Original Flye assembly.fasta')
     p.add_argument('--design', required=True, help='Designed plasmid FASTA')
+    p.add_argument('--graph', help='Flye GFA graph')
+    p.add_argument('--nanoplasty', help='NANOPlasty assembly for path concordance')
     p.add_argument('--sample', default='')
     p.add_argument('--output-fasta', required=True)
     p.add_argument('--report', required=True)
