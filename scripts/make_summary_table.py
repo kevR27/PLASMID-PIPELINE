@@ -80,9 +80,12 @@ def summarize_sample(sample_row, results, use_sniffles, use_flye):
         blast_all_hits_query_coverage_percent=blast['query_union_coverage_percent'],
         inserts_checked=len(insert_rows) if insert_rows else 'NOT_PROVIDED',
         inserts_found_full_length=inserts_found if insert_rows else 'NOT_CHECKED',
-        insert_validation_status=('ANNOTATIONS_MISSING' if not insert_rows else
-                                  'ALL_EXACT' if inserts_found == len(insert_rows)
-                                  else 'REVIEW_REQUIRED'),
+        insert_validation_status=(
+            ('DESIGN_MATCH_INSERT_NOT_INDEPENDENTLY_LOCALIZED'
+             if versus_design['identical'] == 'YES' else
+             'INSERT_NOT_LOCALIZED_DESIGN_DIFFERS')
+            if not insert_rows else
+            'ALL_EXACT' if inserts_found == len(insert_rows) else 'REVIEW_REQUIRED'),
         repeat_candidate_regions=len(repeat_rows),
         repeat_candidate_regions_matching=repeat_matches,
         repeat_min_spanning_alignments=min_spanning,
@@ -110,8 +113,11 @@ def summarize_sample(sample_row, results, use_sniffles, use_flye):
                    flye_agrees_with_nanoplasty='YES' if flye_agrees else 'NO')
 
     problem = (orientation['needs_review'] == 'YES' or versus_design['identical'] != 'YES'
-               or not flye_agrees or not insert_rows or inserts_found < len(insert_rows)
+               or not flye_agrees or (insert_rows and inserts_found < len(insert_rows))
                or repeat_review or limited_repeat_support)
+    row['whole_construct_match'] = ('YES' if versus_design['identical'] == 'YES' else 'NO')
+    row['retention_screen_result'] = ('CONSISTENT_WITH_DESIGN_AND_REPEATS'
+                                      if not problem else 'REVIEW_REQUIRED')
     row['needs_review'] = 'YES' if problem else 'NO'
     return row
 
