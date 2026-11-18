@@ -100,6 +100,7 @@ SUMMARY_INPUTS = [
     "alignments/read_coverage.tsv",
     "blast/whole_plasmid_summary.tsv",
     "blast/inserts_summary.tsv",
+    "repeat_integrity/summary.tsv",
 ]
 if RUN_SNIFFLES:
     SUMMARY_INPUTS.append("sniffles/summary.tsv")
@@ -350,6 +351,22 @@ rule blast_assembly_vs_design:
         "-outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send "
         "evalue bitscore qlen slen' > {output.hits:q}; "
         "python3 scripts/summarize_blast.py --blast {output.hits:q} --output {output.summary:q}"
+
+
+
+rule check_repeat_regions:
+    # Candidate repeat-rich regions inferred from the design, not known annotations.
+    input:
+        design=design_fasta,
+        assembly="results/{sample}/assembly/assembly_oriented.fasta",
+        bam="results/{sample}/alignments/reads_to_design.bam",
+        bai="results/{sample}/alignments/reads_to_design.bam.bai"
+    output:
+        "results/{sample}/repeat_integrity/summary.tsv"
+    shell:
+        "python3 scripts/check_repeat_regions.py --design {input.design:q} "
+        "--assembly {input.assembly:q} --bam {input.bam:q} "
+        "--sample {wildcards.sample:q} --output {output:q}"
 
 
 rule check_inserts:
