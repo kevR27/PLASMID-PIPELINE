@@ -143,9 +143,11 @@ of all designed regions, including the intended insert and repetitive arrays.
 An exact design match is **not** proof that the insert arose via the intended
 cloning event. With no pre-insertion backbone, insert FASTA, or known insert
 coordinates, the program cannot uniquely identify *which portion was inserted*
-or independently verify insertion-specific junctions. The insert-specific table
-is therefore marked `ANNOTATIONS_MISSING` until this information is provided,
-rather than reporting a false confirmation.
+or independently verify insertion-specific junctions. The insert-specific table remains `NO_INSERTS_PROVIDED` without separately defined
+insert coordinates or an insert FASTA. The integrated summary instead distinguishes
+`DESIGN_MATCH_INSERT_NOT_INDEPENDENTLY_LOCALIZED` from a construct that differs
+from its design. Lack of insert coordinates alone does not force `needs_review=YES`
+when the full design and repeat screens otherwise pass.
 
 ### Repeat integrity screen (automatic; no annotation required)
 
