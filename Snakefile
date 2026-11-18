@@ -454,6 +454,8 @@ rule normalize_flye_assembly:
     # This is sequence normalization, NOT proof that the biological plasmid is monomeric.
     input:
         raw="results/{sample}/flye/assembly_raw/assembly.fasta",
+        graph="results/{sample}/flye/assembly_raw/assembly_graph.gfa",
+        nanoplasty="results/{sample}/nanoplasty/assembly_raw_{sample}.fasta",
         design=design_fasta
     output:
         normalized="results/{sample}/flye/assembly_normalized.fasta",
@@ -465,6 +467,7 @@ rule normalize_flye_assembly:
         "results/{sample}/logs/flye_normalization.log"
     shell:
         "python3 scripts/normalize_flye_tandem.py --assembly {input.raw:q} "
+        "--graph {input.graph:q} --nanoplasty {input.nanoplasty:q} "
         "--design {input.design:q} --sample {wildcards.sample:q} "
         "--output-fasta {output.normalized:q} --report {output.report:q} "
         "--boundaries {output.boundaries:q} --pairwise {output.pairwise:q} "
