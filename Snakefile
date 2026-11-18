@@ -432,7 +432,8 @@ rule assemble_with_flye:
     input:
         fastq="work/{sample}/filtered_reads/reads.fastq"
     output:
-        "results/{sample}/flye/assembly_raw/assembly.fasta"
+        fasta="results/{sample}/flye/assembly_raw/assembly.fasta",
+        graph="results/{sample}/flye/assembly_raw/assembly_graph.gfa"
     threads: THREADS
     params:
         folder="results/{sample}/flye/assembly_raw",
@@ -445,7 +446,7 @@ rule assemble_with_flye:
     shell:
         "flye --nano-hq {input.fastq:q} --out-dir {params.folder:q} --threads {threads} "
         "{params.size_options} > {log:q} 2>&1; "
-        "test -s {output:q}"
+        "test -s {output.fasta:q} && test -s {output.graph:q}"
 
 
 rule normalize_flye_assembly:
