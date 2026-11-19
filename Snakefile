@@ -8,7 +8,7 @@ Steps, in order (each is a "rule" below):
    2. write_nanoplasty_config       write NANOPlasty settings file
    3. assemble_with_nanoplasty      de novo circular assembly (seed-assisted)
    4. orient_assembly              flip/rotate the assembly to match the design
-   5. map_reads / map_assembly     minimap2 alignments (BAM files for IGV)
+   5. map_reads / map_reads_to_assembly  minimap2 alignments (BAM files for IGV)
    6. compare_assembly_to_design   base-by-base differences, VCF, read support
    7. blast_assembly_vs_design     BLAST of the assembly against the design
    8. check_inserts                are your inserts in the assembly?
@@ -115,7 +115,7 @@ rule all:
         "results/summary/overview.png",
         expand("results/{sample}/plots/{plot}.png", sample=SAMPLES,
                plot=["read_lengths", "depth", "differences"]),
-        expand("results/{sample}/alignments/assembly_to_design.bam.bai", sample=SAMPLES),
+        expand("results/{sample}/alignments/reads_to_assembly.bam.bai", sample=SAMPLES),
         expand("results/{sample}/assembly_vs_design/read_support.tsv", sample=SAMPLES),
 
 
@@ -252,16 +252,19 @@ rule map_reads:
         "samtools index {output.bam:q} {output.bai:q}"
 
 
-rule map_assembly_to_design:
+rule map_reads_to_assembly:
+    # Align the original filtered Nanopore reads to the assembled plasmid.
+    # Use assembly_oriented.fasta as the reference when opening this BAM in IGV.
     input:
-        assembly="results/{sample}/assembly/assembly_oriented.fasta",
-        design=design_fasta
+        fastq="work/{sample}/filtered_reads/reads.fastq",
+        assembly="results/{sample}/assembly/assembly_oriented.fasta"
     output:
-        bam="results/{sample}/alignments/assembly_to_design.bam",
-        bai="results/{sample}/alignments/assembly_to_design.bam.bai"
+        bam="results/{sample}/alignments/reads_to_assembly.bam",
+        bai="results/{sample}/alignments/reads_to_assembly.bam.bai"
     threads: THREADS
     shell:
-        "minimap2 -t {threads} -ax asm5 --cs {input.design:q} {input.assembly:q} "
+        "set -euo pipefail; "
+        "minimap2 -t {threads} -ax map-ont {input.assembly:q} {input.fastq:q} "
         "| samtools sort -@ {threads} -o {output.bam:q} -; "
         "samtools index {output.bam:q} {output.bai:q}"
 
