@@ -101,7 +101,7 @@ The workflow is already a clean-run workflow: missing `results/` triggers the ne
 | `nanoplasty/assembly_source.tsv` | Source filename, record ID and length provenance |
 | `assembly/` | Primary assembly rotated/oriented to design (raw primary unchanged) |
 | `assembly_vs_design/` | Sequence differences, assembly-derived VCF, read support and circular-origin read evidence |
-| `alignments/` | BAMs, depth, coverage, IGV-ready alignments |
+| `alignments/` | `reads_to_assembly.bam` (filtered ONT reads aligned to the NANOPlasty-based assembled FASTA), `reads_to_design.bam`, `reads_to_rotated_design.bam`, depth and coverage; BAMs are coordinate-sorted and indexed for IGV |
 | `blast/` | Whole-plasmid and insert sequence checks |
 | `sniffles/` | Raw-read SV candidates aligned to design and rotated design |
 | `flye/assembly_raw/` | Unchanged Flye output (even when ~2× expected size) |
@@ -196,3 +196,9 @@ is `graph_reconstructed_nanoplasty_concordant_read_review_required`.
 Sequence agreement cannot replace checks of raw Nanopore reads spanning the
 two joins without contig overlap, nor can it confirm the TALEN repeat-copy
 number. The original `flye/assembly_raw/assembly.fasta` and GFA remain intact.
+
+### Reads aligned to the assembled plasmid
+
+The default workflow generates `results/<sample>/alignments/reads_to_assembly.bam` and its `.bam.bai` index by mapping the filtered original Nanopore reads against `results/<sample>/assembly/assembly_oriented.fasta` with `minimap2 -ax map-ont`. Open the BAM in IGV using **that same assembled FASTA** as the reference. This replaces the previous `assembly_to_design.bam` deliverable; it does **not** remove the sequence-level `assembly_vs_design/` comparison, because identifying differences relative to the intended plasmid is still essential.
+
+The separate `reads_to_design.bam` and `reads_to_rotated_design.bam` are retained for variant read support, read-depth summaries, repeat screening, Sniffles2, and reviewing the artificial origin of the circular design. Read-to-assembly mapping can confirm coverage and reveal inconsistencies with the consensus, but the reads were used to build that consensus; mapping them back is not independent proof of correct assembly, repeat copy number, or junction structure.
